@@ -184,6 +184,7 @@
             <option value="Xatab">Xatab</option>
             <option value="Rutracker">Rutracker</option>
             <option value="gamestorrentsfm">gamestorrentsfm</option>
+            <option value="SteamRip">SteamRip</option>
         </select>
         <button onclick="searchGames()">Pesquisar</button>
     </div>
@@ -201,11 +202,18 @@
             "Tyni Repacks": "https://hydralinks.cloud/sources/tinyrepacks.json",
             "Xatab": "https://hydralinks.cloud/sources/xatab.json",
             "Rutracker": "https://raw.githubusercontent.com/KekitU/rutracker-hydra-links/main/all_categories.json",
-            "gamestorrentsfm": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/gamestorrentsfm.json"
+            "gamestorrentsfm": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/gamestorrentsfm.json",
+            "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/SteamRip.json"
         };
 
         function normalizeString(str) {
             return str.replace(/[^\w]/g, '').toLowerCase();
+        }
+
+        function getHostname(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            return a.hostname.replace('www.', '');
         }
 
         async function searchGames() {
@@ -254,7 +262,8 @@
                             game.uris.forEach(uri => {
                                 const magnetLink = document.createElement('a');
                                 magnetLink.href = uri;
-                                magnetLink.textContent = 'Download Magnet';
+                                const hostname = getHostname(uri);
+                                magnetLink.textContent = `Download via ${hostname}`;
                                 magnetLink.classList.add('magnet-link');
                                 magnetLink.target = '_blank';
                                 gameDetails.appendChild(magnetLink);
@@ -278,65 +287,73 @@
             menu.classList.toggle('active');
         }
 
-        async function displayRecentGames() {
-            const allGames = [];
+        async function loadRecentGames() {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
 
-            for (const sourceUrl of Object.values(sources)) {
+            let allGames = [];
+
+            for (const [sourceName, sourceUrl] of Object.entries(sources)) {
                 try {
                     const response = await fetch(sourceUrl);
                     const data = await response.json();
-                    allGames.push(...data.downloads);
+                    const games = data.downloads.map(game => ({
+                        ...game,
+                        source: sourceName
+                    }));
+                    allGames = allGames.concat(games);
                 } catch (error) {
-                    console.error(`Erro ao buscar jogos:`, error);
+                    console.error(`Erro ao buscar jogos da fonte ${sourceName}:`, error);
                 }
             }
 
-            const recentGames = allGames.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).slice(0, 10);
+            allGames.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+            const recentGames = allGames.slice(0, 10);
 
-            if (recentGames.length > 0) {
-                const resultsContainer = document.getElementById('results');
-                resultsContainer.innerHTML = '';
+            for (const game of recentGames) {
+                const gameElement = document.createElement('div');
+                gameElement.classList.add('game');
 
-                for (const game of recentGames) {
-                    const gameElement = document.createElement('div');
-                    gameElement.classList.add('game');
+                const gameDetails = document.createElement('div');
+                gameDetails.classList.add('game-details');
+                gameElement.appendChild(gameDetails);
 
-                    const gameDetails = document.createElement('div');
-                    gameDetails.classList.add('game-details');
-                    gameElement.appendChild(gameDetails);
+                const sourceElement = document.createElement('div');
+                sourceElement.classList.add('source');
+                sourceElement.textContent = `Fonte: ${game.source}`;
+                gameDetails.appendChild(sourceElement);
 
-                    const gameTitle = document.createElement('h2');
-                    gameTitle.textContent = game.title;
-                    gameDetails.appendChild(gameTitle);
+                const gameTitle = document.createElement('h2');
+                gameTitle.textContent = game.title;
+                gameDetails.appendChild(gameTitle);
 
-                    const gameDate = document.createElement('p');
-                    gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
-                    gameDetails.appendChild(gameDate);
+                const gameDate = document.createElement('p');
+                gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
+                gameDetails.appendChild(gameDate);
 
-                    const gameSize = document.createElement('p');
-                    gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
-                    gameDetails.appendChild(gameSize);
+                const gameSize = document.createElement('p');
+                gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
+                gameDetails.appendChild(gameSize);
 
-                    game.uris.forEach(uri => {
-                        const magnetLink = document.createElement('a');
-                        magnetLink.href = uri;
-                        magnetLink.textContent = 'Download Magnet';
-                        magnetLink.classList.add('magnet-link');
-                        magnetLink.target = '_blank';
-                        gameDetails.appendChild(magnetLink);
-                    });
+                game.uris.forEach(uri => {
+                    const magnetLink = document.createElement('a');
+                    magnetLink.href = uri;
+                    const hostname = getHostname(uri);
+                    magnetLink.textContent = `Download via ${hostname}`;
+                    magnetLink.classList.add('magnet-link');
+                    magnetLink.target = '_blank';
+                    gameDetails.appendChild(magnetLink);
+                });
 
-                    resultsContainer.appendChild(gameElement);
-                }
-
-                document.querySelector('h1').innerHTML = '<a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">Hydra Search By @HailGames</a>';
-            } else {
-                document.getElementById('results').innerHTML = '<p>Nenhum jogo recente encontrado.</p>';
+                resultsContainer.appendChild(gameElement);
             }
         }
 
-        // Load recent games on page load
-        window.onload = displayRecentGames;
+        document.addEventListener('DOMContentLoaded', loadRecentGames);
     </script>
+
+    <div class="credits">
+        <p>Hydra Search By <a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">@HailGames</a></p>
+    </div>
 </body>
 </html>
