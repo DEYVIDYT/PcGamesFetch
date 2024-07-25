@@ -6,11 +6,12 @@
     <title>Pesquisar Jogos</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f0f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
             color: #333;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
         .toolbar {
             position: fixed;
@@ -20,9 +21,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #007aff;
+            background-color: #000;
             padding: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             height: 60px;
             box-sizing: border-box;
@@ -31,17 +32,17 @@
             position: absolute;
             left: 10px;
             font-size: 24px;
-            color: white;
+            color: #fff;
             cursor: pointer;
         }
         .toolbar h1 {
             margin: 0;
-            font-size: 18px;
-            color: white;
+            font-size: 20px;
+            color: #fff;
             text-align: center;
         }
         .toolbar h1 a {
-            color: white;
+            color: #fff;
             text-decoration: none;
         }
         .toolbar h1 a:hover {
@@ -52,8 +53,8 @@
             top: 60px;
             left: 0;
             width: 100%;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-color: #000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -65,7 +66,7 @@
         }
         .menu a {
             text-decoration: none;
-            color: #007aff;
+            color: #00bfae;
             padding: 10px 20px;
             font-size: 16px;
             text-align: center;
@@ -74,7 +75,7 @@
             display: block;
         }
         .menu a:hover {
-            background-color: #f0f0f5;
+            background-color: #333;
         }
         .search-container {
             text-align: center;
@@ -84,28 +85,37 @@
         input, button, select {
             padding: 12px;
             font-size: 16px;
-            border-radius: 12px;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            border: 1px solid #00bfae;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             margin: 5px;
+            outline: none;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            color: #333;
+        }
+        input:focus, select:focus, button:focus {
+            border-color: #00bfae;
+            box-shadow: 0 0 8px rgba(0, 191, 174, 0.5);
         }
         button {
-            background-color: #007aff;
-            color: white;
+            background-color: #00bfae;
+            color: #fff;
             cursor: pointer;
             border: none;
         }
         button:hover {
-            background-color: #0051a8;
+            background-color: #00a89d;
         }
         .results-container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 20px;
         }
         .game {
-            background-color: white;
-            border-radius: 12px;
+            background-color: #fff;
+            border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin: 10px;
             padding: 15px;
@@ -115,6 +125,11 @@
             flex-direction: column;
             align-items: center;
             box-sizing: border-box;
+            transition: transform 0.3s ease;
+            border: 1px solid #ddd;
+        }
+        .game:hover {
+            transform: scale(1.02);
         }
         .game-details {
             width: 100%;
@@ -132,7 +147,7 @@
             color: #666;
         }
         .magnet-link {
-            color: #007aff;
+            color: #00bfae;
             text-decoration: none;
             display: block;
             margin-top: 10px;
@@ -149,25 +164,78 @@
             text-align: center;
             margin-top: 20px;
             font-size: 16px;
-            color: #007aff;
+            color: #00bfae;
         }
         .credits a {
-            color: #007aff;
+            color: #00bfae;
             text-decoration: none;
         }
         .credits a:hover {
             text-decoration: underline;
         }
+
+        /* Tema escuro */
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-mode .toolbar {
+            background-color: #222;
+        }
+        .dark-mode .menu {
+            background-color: #222;
+        }
+        .dark-mode input, .dark-mode select, .dark-mode button {
+            background-color: #555;
+            color: #fff;
+            border: 1px solid #888;
+        }
+        .dark-mode input:focus, .dark-mode select:focus, .dark-mode button:focus {
+            border-color: #00bfae;
+            box-shadow: 0 0 8px rgba(0, 191, 174, 0.5);
+        }
+        .dark-mode .game {
+            background-color: #444;
+            border: 1px solid #555;
+        }
+        .dark-mode .game h2, .dark-mode .game p {
+            color: #ddd;
+        }
+        .dark-mode .magnet-link {
+            color: #00bfae;
+        }
+        .dark-mode .credits {
+            color: #00bfae;
+        }
+
+        /* Vídeo em background */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            display: none; /* Oculta o vídeo por padrão */
+            pointer-events: none; /* Não permite interações com o vídeo */
+        }
     </style>
 </head>
 <body>
+    <video id="background-video" class="background-video" autoplay muted loop>
+        <source src="https://github.com/DEYVIDYT/PcGamesFetch/raw/main/Joel/joel.mp4" type="video/mp4">
+        Seu navegador não suporta a reprodução de vídeo.
+    </video>
+
     <div class="toolbar">
         <div class="menu-button" onclick="toggleMenu()">☰</div>
-        <h1><a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">Hydra Search By @HailGames</a></h1>
+        <h1><a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">Pc Games Fetch By @HailGames</a></h1>
     </div>
     <div id="menu" class="menu">
         <a href="https://chat.whatsapp.com/CXSrf49mzhXEKQsJzxvZ8H" target="_blank">Grupo WhatsApp</a>
         <a href="https://youtube.com/@hail-games?si=BnlRnwJSehCRV9bw" target="_blank">Canal YouTube</a>
+        <a href="https://github.com/DEYVIDYT/PcGamesFetch/releases/download/C%C3%B3digo2/CODIGO.FONTE.zip" target="_blank">Código Fonte</a>
     </div>
 
     <div class="search-container">
@@ -196,7 +264,7 @@
             "Dodi": "https://hydralinks.cloud/sources/dodi.json",
             "Empress": "https://hydralinks.cloud/sources/empress.json",
             "Fitgirl": "https://hydralinks.cloud/sources/fitgirl.json",
-            "Free Gog": "https://hydralinks.cloud/sources/gog.json",
+            "Free Gog": "https://hydralinks.cloud/sources/freegog.json",
             "KaOsKrew": "https://hydralinks.cloud/sources/kaoskrew.json",
             "OnlineFix": "https://hydralinks.cloud/sources/onlinefix.json",
             "Tyni Repacks": "https://hydralinks.cloud/sources/tinyrepacks.json",
@@ -205,6 +273,8 @@
             "gamestorrentsfm": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/gamestorrentsfm.json",
             "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/SteamRip.json"
         };
+
+        let lastClickTime = 0;
 
         function normalizeString(str) {
             return str.replace(/[^\w]/g, '').toLowerCase();
@@ -221,6 +291,20 @@
             const selectedSource = document.getElementById('source-select').value;
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
+
+            // Verifica o Easter egg para o tema escuro
+            const currentTime = new Date().getTime();
+            if (query === 'dark' && (currentTime - lastClickTime) < 500) {
+                document.body.classList.toggle('dark-mode');
+                lastClickTime = 0; // Reseta o tempo
+            } else if (query === 'joel' && (currentTime - lastClickTime) < 500) {
+                // Exibe o vídeo de fundo
+                const videoElement = document.getElementById('background-video');
+                videoElement.style.display = 'block';
+                lastClickTime = 0; // Reseta o tempo
+            } else {
+                lastClickTime = currentTime;
+            }
 
             for (const [sourceName, sourceUrl] of Object.entries(sources)) {
                 if (selectedSource !== 'all' && selectedSource !== sourceName) {
@@ -263,7 +347,11 @@
                                 const magnetLink = document.createElement('a');
                                 magnetLink.href = uri;
                                 const hostname = getHostname(uri);
-                                magnetLink.textContent = `Download via ${hostname}`;
+                                if (uri.startsWith('magnet:')) {
+                                    magnetLink.textContent = `Download via torrent`;
+                                } else {
+                                    magnetLink.textContent = `Download via ${hostname}`;
+                                }
                                 magnetLink.classList.add('magnet-link');
                                 magnetLink.target = '_blank';
                                 gameDetails.appendChild(magnetLink);
@@ -339,7 +427,11 @@
                     const magnetLink = document.createElement('a');
                     magnetLink.href = uri;
                     const hostname = getHostname(uri);
-                    magnetLink.textContent = `Download via ${hostname}`;
+                    if (uri.startsWith('magnet:')) {
+                        magnetLink.textContent = `Download via torrent`;
+                    } else {
+                        magnetLink.textContent = `Download via ${hostname}`;
+                    }
                     magnetLink.classList.add('magnet-link');
                     magnetLink.target = '_blank';
                     gameDetails.appendChild(magnetLink);
@@ -353,7 +445,7 @@
     </script>
 
     <div class="credits">
-        <p>Hydra Search By <a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">@HailGames</a></p>
+        <p>Pc Games Fetch By <a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">@HailGames</a></p>
     </div>
 </body>
 </html>
