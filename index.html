@@ -256,124 +256,67 @@
             "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/PcGamesFetch/main/SteamRip.json"
         };
 
-        let lastClickTime = 0;
-
         function normalizeString(str) {
             return str.replace(/[^\w]/g, '').toLowerCase();
         }
 
-        function getHostname(url) {
-            const a = document.createElement('a');
-            a.href = url;
-            return a.hostname.replace('www.', '');
+        function getParameterByName(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
 
-        function createShareableLink(gameTitle, sourceName) {
-            const normalizedTitle = encodeURIComponent(normalizeString(gameTitle));
-            const normalizedSource = encodeURIComponent(normalizeString(sourceName));
-            return `${window.location.origin}${window.location.pathname}?title=${normalizedTitle}&source=${normalizedSource}`;
-        }
-
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            alert('Link copiado para a área de transferência!');
-        }
-
-        async function searchGames() {
-            const query = normalizeString(document.getElementById('search-input').value);
-            const selectedSource = document.getElementById('source-select').value;
+        async function displayGame(title, source) {
+            const response = await fetch(sources[source]);
+            const data = await response.json();
+            const filteredGames = data.downloads.filter(game => normalizeString(game.title) === normalizeString(title));
+            
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
 
-            // Verifica o Easter egg
-            const currentTime = new Date().getTime();
-            if (query === 'dark' && (currentTime - lastClickTime) < 500) {
-                document.body.classList.toggle('dark-mode');
-                lastClickTime = 0; // Reseta o tempo
-            } else {
-                lastClickTime = currentTime;
-            }
+            if (filteredGames.length > 0) {
+                const game = filteredGames[0];
+                const gameElement = document.createElement('div');
+                gameElement.classList.add('game');
 
-            for (const [sourceName, sourceUrl] of Object.entries(sources)) {
-                if (selectedSource !== 'all' && selectedSource !== sourceName) {
-                    continue;
-                }
+                const gameDetails = document.createElement('div');
+                gameDetails.classList.add('game-details');
+                gameElement.appendChild(gameDetails);
 
-                try {
-                    const response = await fetch(sourceUrl);
-                    const data = await response.json();
+                const sourceElement = document.createElement('div');
+                sourceElement.classList.add('source');
+                sourceElement.textContent = `Fonte: ${source}`;
+                gameDetails.appendChild(sourceElement);
 
-                    const filteredGames = data.downloads.filter(game => normalizeString(game.title).includes(query));
+                const gameTitle = document.createElement('h2');
+                gameTitle.textContent = game.title;
+                gameDetails.appendChild(gameTitle);
 
-                    if (filteredGames.length > 0) {
-                        for (const game of filteredGames) {
-                            const gameElement = document.createElement('div');
-                            gameElement.classList.add('game');
+                const gameDate = document.createElement('p');
+                gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
+                gameDetails.appendChild(gameDate);
 
-                            const gameDetails = document.createElement('div');
-                            gameDetails.classList.add('game-details');
-                            gameElement.appendChild(gameDetails);
+                const gameSize = document.createElement('p');
+                gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
+                gameDetails.appendChild(gameSize);
 
-                            const sourceElement = document.createElement('div');
-                            sourceElement.classList.add('source');
-                            sourceElement.textContent = `Fonte: ${sourceName}`;
-                            gameDetails.appendChild(sourceElement);
-
-                            const gameTitle = document.createElement('h2');
-                            gameTitle.textContent = game.title;
-                            gameDetails.appendChild(gameTitle);
-
-                            const gameDate = document.createElement('p');
-                            gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
-                            gameDetails.appendChild(gameDate);
-
-                            const gameSize = document.createElement('p');
-                            gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
-                            gameDetails.appendChild(gameSize);
-
-                            game.uris.forEach(uri => {
-                                const magnetLink = document.createElement('a');
-                                magnetLink.href = uri;
-                                const hostname = getHostname(uri);
-                                if (uri.startsWith('magnet:')) {
-                                    magnetLink.textContent = `Download via torrent`;
-                                } else {
-                                    magnetLink.textContent = `Download via ${hostname}`;
-                                }
-                                magnetLink.classList.add('magnet-link');
-                                magnetLink.target = '_blank';
-                                gameDetails.appendChild(magnetLink);
-                            });
-
-                            const shareButton = document.createElement('button');
-                            shareButton.textContent = 'Compartilhar';
-                            shareButton.onclick = () => {
-                                const shareableLink = createShareableLink(game.title, sourceName);
-                                copyToClipboard(shareableLink);
-                            };
-                            gameElement.appendChild(shareButton);
-
-                            resultsContainer.appendChild(gameElement);
-                        }
+                game.uris.forEach(uri => {
+                    const magnetLink = document.createElement('a');
+                    magnetLink.href = uri;
+                    const hostname = getHostname(uri);
+                    if (uri.startsWith('magnet:')) {
+                        magnetLink.textContent = `Download via torrent`;
+                    } else {
+                        magnetLink.textContent = `Download via ${hostname}`;
                     }
-                } catch (error) {
-                    console.error(`Erro ao buscar jogos da fonte ${sourceName}:`, error);
-                }
-            }
+                    magnetLink.classList.add('magnet-link');
+                    magnetLink.target = '_blank';
+                    gameDetails.appendChild(magnetLink);
+                });
 
-            if (resultsContainer.innerHTML === '') {
+                resultsContainer.appendChild(gameElement);
+            } else {
                 resultsContainer.innerHTML = '<p>Nenhum jogo encontrado.</p>';
             }
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('menu');
-            menu.classList.toggle('active');
         }
 
         async function loadRecentGames() {
@@ -450,7 +393,43 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadRecentGames);
+        document.addEventListener('DOMContentLoaded', () => {
+            const title = getParameterByName('title');
+            const source = getParameterByName('source');
+
+            if (title && source && sources[source]) {
+                displayGame(decodeURIComponent(title), decodeURIComponent(source));
+            } else {
+                loadRecentGames();
+            }
+        });
+
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('active');
+        }
+
+        function getHostname(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            return a.hostname.replace('www.', '');
+        }
+
+        function createShareableLink(gameTitle, sourceName) {
+            const normalizedTitle = encodeURIComponent(normalizeString(gameTitle));
+            const normalizedSource = encodeURIComponent(normalizeString(sourceName));
+            return `${window.location.origin}${window.location.pathname}?title=${normalizedTitle}&source=${normalizedSource}`;
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Link copiado para a área de transferência!');
+        }
     </script>
 </body>
 </html>
