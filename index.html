@@ -282,7 +282,7 @@
         function generateShareLink(game) {
             const url = new URL(window.location.href);
             url.searchParams.set('title', encodeURIComponent(game.title));
-            url.searchParams.set('source', encodeURIComponent(game.source));
+            url.searchParams.set('source', encodeURIComponent(game.source || ''));
             return url.toString();
         }
 
@@ -382,7 +382,6 @@
             const source = params.get('source');
 
             if (title && source) {
-                const query = normalizeString(title);
                 document.getElementById('search-input').value = decodeURIComponent(title);
                 document.getElementById('source-select').value = decodeURIComponent(source);
                 searchGames();
