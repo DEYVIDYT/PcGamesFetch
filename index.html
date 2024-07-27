@@ -249,11 +249,11 @@
             "Free Gog": "https://hydralinks.cloud/sources/gog.json",
             "KaOsKrew": "https://hydralinks.cloud/sources/kaoskrew.json",
             "OnlineFix": "https://hydralinks.cloud/sources/onlinefix.json",
-            "Tyni Repacks": "https://hydralinks.cloud/sources/tinyrepacks.json",
+            "Tyni Repacks": "https://hydralinks.cloud/sources/tyni.json",
             "Xatab": "https://hydralinks.cloud/sources/xatab.json",
-            "Rutracker": "https://raw.githubusercontent.com/KekitU/rutracker-hydra-links/main/all_categories.json",
-            "gamestorrentsfm": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/gamestorrentsfm.json",
-            "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/SteamRip.json"
+            "Rutracker": "https://hydralinks.cloud/sources/rutracker.json",
+            "gamestorrentsfm": "https://github.com/DEYVIDYT/PcGamesFetch/raw/main/gamestorrentsfm.json",
+            "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/PcGamesFetch/main/SteamRip.json"
         };
 
         let lastClickTime = 0;
@@ -266,6 +266,22 @@
             const a = document.createElement('a');
             a.href = url;
             return a.hostname.replace('www.', '');
+        }
+
+        function createShareableLink(gameTitle, sourceName) {
+            const normalizedTitle = encodeURIComponent(normalizeString(gameTitle));
+            const normalizedSource = encodeURIComponent(normalizeString(sourceName));
+            return `${window.location.origin}${window.location.pathname}?title=${normalizedTitle}&source=${normalizedSource}`;
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Link copiado para a área de transferência!');
         }
 
         async function searchGames() {
@@ -333,6 +349,14 @@
                                 magnetLink.target = '_blank';
                                 gameDetails.appendChild(magnetLink);
                             });
+
+                            const shareButton = document.createElement('button');
+                            shareButton.textContent = 'Compartilhar';
+                            shareButton.onclick = () => {
+                                const shareableLink = createShareableLink(game.title, sourceName);
+                                copyToClipboard(shareableLink);
+                            };
+                            gameElement.appendChild(shareButton);
 
                             resultsContainer.appendChild(gameElement);
                         }
@@ -414,15 +438,19 @@
                     gameDetails.appendChild(magnetLink);
                 });
 
+                const shareButton = document.createElement('button');
+                shareButton.textContent = 'Compartilhar';
+                shareButton.onclick = () => {
+                    const shareableLink = createShareableLink(game.title, game.source);
+                    copyToClipboard(shareableLink);
+                };
+                gameElement.appendChild(shareButton);
+
                 resultsContainer.appendChild(gameElement);
             }
         }
 
         document.addEventListener('DOMContentLoaded', loadRecentGames);
     </script>
-
-    <div class="credits">
-        <p>Pc Games Fetch By <a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">@HailGames</a></p>
-    </div>
 </body>
 </html>
