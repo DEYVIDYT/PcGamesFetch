@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesquisar Jogos</title>
     <style>
-        /* O estilo permanece o mesmo */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
@@ -187,8 +186,6 @@
         .credits a:hover {
             text-decoration: underline;
         }
-
-        /* Tema escuro */
         .dark-mode {
             background-color: #333;
             color: #fff;
@@ -273,7 +270,7 @@
         let lastClickTime = 0;
 
         function normalizeString(str) {
-            return str.replace(/[^\w]/g, '').toLowerCase();
+            return str.toLowerCase().trim();
         }
 
         function getHostname(url) {
@@ -295,11 +292,10 @@
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
 
-            // Verifica o Easter egg
             const currentTime = new Date().getTime();
             if (query === 'dark' && (currentTime - lastClickTime) < 500) {
                 document.body.classList.toggle('dark-mode');
-                lastClickTime = 0; // Reseta o tempo
+                lastClickTime = 0;
             } else {
                 lastClickTime = currentTime;
             }
@@ -316,7 +312,7 @@
                     const filteredGames = data.downloads.filter(game => normalizeString(game.title).includes(query));
 
                     if (filteredGames.length > 0) {
-                        for (const game of filteredGames) {
+                        filteredGames.forEach(game => {
                             const gameElement = document.createElement('div');
                             gameElement.classList.add('game');
 
@@ -345,11 +341,7 @@
                                 const magnetLink = document.createElement('a');
                                 magnetLink.href = uri;
                                 const hostname = getHostname(uri);
-                                if (uri.startsWith('magnet:')) {
-                                    magnetLink.textContent = `Download via torrent`;
-                                } else {
-                                    magnetLink.textContent = `Download via ${hostname}`;
-                                }
+                                magnetLink.textContent = uri.startsWith('magnet:') ? `Download via torrent` : `Download via ${hostname}`;
                                 magnetLink.classList.add('magnet-link');
                                 magnetLink.target = '_blank';
                                 gameDetails.appendChild(magnetLink);
@@ -367,7 +359,7 @@
                             gameDetails.appendChild(shareButton);
 
                             resultsContainer.appendChild(gameElement);
-                        }
+                        });
                     }
                 } catch (error) {
                     console.error(`Erro ao buscar jogos da fonte ${sourceName}:`, error);
@@ -420,7 +412,7 @@
             allGames.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
             const recentGames = allGames.slice(0, 10);
 
-            for (const game of recentGames) {
+            recentGames.forEach(game => {
                 const gameElement = document.createElement('div');
                 gameElement.classList.add('game');
 
@@ -449,11 +441,7 @@
                     const magnetLink = document.createElement('a');
                     magnetLink.href = uri;
                     const hostname = getHostname(uri);
-                    if (uri.startsWith('magnet:')) {
-                        magnetLink.textContent = `Download via torrent`;
-                    } else {
-                        magnetLink.textContent = `Download via ${hostname}`;
-                    }
+                    magnetLink.textContent = uri.startsWith('magnet:') ? `Download via torrent` : `Download via ${hostname}`;
                     magnetLink.classList.add('magnet-link');
                     magnetLink.target = '_blank';
                     gameDetails.appendChild(magnetLink);
@@ -471,7 +459,7 @@
                 gameDetails.appendChild(shareButton);
 
                 resultsContainer.appendChild(gameElement);
-            }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -479,9 +467,5 @@
             getGameFromURL();
         });
     </script>
-
-    <div class="credits">
-        <p>Pc Games Fetch By <a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">@HailGames</a></p>
-    </div>
 </body>
 </html>
