@@ -155,15 +155,6 @@
         .magnet-link:hover {
             text-decoration: underline;
         }
-        .share-link {
-            color: #00bfae;
-            text-decoration: none;
-            display: block;
-            margin-top: 10px;
-        }
-        .share-link:hover {
-            text-decoration: underline;
-        }
         .source {
             font-weight: 600;
             color: #999;
@@ -255,17 +246,15 @@
             "Dodi": "https://hydralinks.cloud/sources/dodi.json",
             "Empress": "https://hydralinks.cloud/sources/empress.json",
             "Fitgirl": "https://hydralinks.cloud/sources/fitgirl.json",
-            "Free Gog": "https://hydralinks.cloud/sources/freegogpcgames.json",
+            "Free Gog": "https://hydralinks.cloud/sources/gog.json",
             "KaOsKrew": "https://hydralinks.cloud/sources/kaoskrew.json",
             "OnlineFix": "https://hydralinks.cloud/sources/onlinefix.json",
-            "Tyni Repacks": "https://hydralinks.cloud/sources/tinyrepacks.json",
+            "Tyni Repacks": "https://hydralinks.cloud/sources/tyni.json",
             "Xatab": "https://hydralinks.cloud/sources/xatab.json",
             "Rutracker": "https://raw.githubusercontent.com/KekitU/rutracker-hydra-links/main/all_categories.json",
             "gamestorrentsfm": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/gamestorrentsfm.json",
-            "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/SteamRip.json"
+            "SteamRip": "https://raw.githubusercontent.com/DEYVIDYT/HydraSearch/main/SteamRip.json",
         };
-
-        let lastClickTime = 0;
 
         function normalizeString(str) {
             return str.replace(/[^\w]/g, '').toLowerCase();
@@ -277,20 +266,16 @@
             return a.hostname.replace('www.', '');
         }
 
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
         async function searchGames() {
             const query = normalizeString(document.getElementById('search-input').value);
             const selectedSource = document.getElementById('source-select').value;
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
-
-            // Verifica o Easter egg
-            const currentTime = new Date().getTime();
-            if (query === 'dark' && (currentTime - lastClickTime) < 500) {
-                document.body.classList.toggle('dark-mode');
-                lastClickTime = 0; // Reseta o tempo
-            } else {
-                lastClickTime = currentTime;
-            }
 
             for (const [sourceName, sourceUrl] of Object.entries(sources)) {
                 if (selectedSource !== 'all' && selectedSource !== sourceName) {
@@ -333,26 +318,22 @@
                                 const magnetLink = document.createElement('a');
                                 magnetLink.href = uri;
                                 const hostname = getHostname(uri);
-                                if (uri.startsWith('magnet:')) {
-                                    magnetLink.textContent = `Download via torrent`;
-                                } else {
-                                    magnetLink.textContent = `Download via ${hostname}`;
-                                }
+                                magnetLink.textContent = uri.startsWith('magnet:') ? `Download via torrent` : `Download via ${hostname}`;
                                 magnetLink.classList.add('magnet-link');
                                 magnetLink.target = '_blank';
                                 gameDetails.appendChild(magnetLink);
                             });
 
-                            // Adiciona link de compartilhamento
-                            const shareLink = document.createElement('a');
-                            const shareUrl = new URL(window.location.href);
-                            shareUrl.searchParams.set('title', encodeURIComponent(game.title));
-                            shareUrl.searchParams.set('source', encodeURIComponent(sourceName));
-                            shareLink.href = shareUrl.href;
-                            shareLink.classList.add('share-link');
-                            shareLink.textContent = 'Compartilhar este jogo';
-                            shareLink.target = '_blank';
-                            gameDetails.appendChild(shareLink);
+                            const shareButton = document.createElement('button');
+                            shareButton.textContent = 'Compartilhar';
+                            shareButton.onclick = () => {
+                                const shareUrl = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(game.title)}&source=${encodeURIComponent(sourceName)}`;
+                                navigator.share({
+                                    title: game.title,
+                                    url: shareUrl
+                                }).catch(err => console.error('Erro ao compartilhar:', err));
+                            };
+                            gameElement.appendChild(shareButton);
 
                             resultsContainer.appendChild(gameElement);
                         }
@@ -372,167 +353,93 @@
             menu.classList.toggle('active');
         }
 
-        async function loadRecentGames() {
+        function displayGame(game) {
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '';
 
-            let allGames = [];
+            const gameElement = document.createElement('div');
+            gameElement.classList.add('game');
 
-            for (const [sourceName, sourceUrl] of Object.entries(sources)) {
-                try {
-                    const response = await fetch(sourceUrl);
-                    const data = await response.json();
-                    const games = data.downloads.map(game => ({
-                        ...game,
-                        source: sourceName
-                    }));
-                    allGames = allGames.concat(games);
-                } catch (error) {
-                    console.error(`Erro ao buscar jogos da fonte ${sourceName}:`, error);
-                }
-            }
+            const gameDetails = document.createElement('div');
+            gameDetails.classList.add('game-details');
+            gameElement.appendChild(gameDetails);
 
-            allGames.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
-            const recentGames = allGames.slice(0, 10);
+            const sourceElement = document.createElement('div');
+            sourceElement.classList.add('source');
+            sourceElement.textContent = `Fonte: ${game.source}`;
+            gameDetails.appendChild(sourceElement);
 
-            for (const game of recentGames) {
-                const gameElement = document.createElement('div');
-                gameElement.classList.add('game');
+            const gameTitle = document.createElement('h2');
+            gameTitle.textContent = game.title;
+            gameDetails.appendChild(gameTitle);
 
-                const gameDetails = document.createElement('div');
-                gameDetails.classList.add('game-details');
-                gameElement.appendChild(gameDetails);
+            const gameDate = document.createElement('p');
+            gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
+            gameDetails.appendChild(gameDate);
 
-                const sourceElement = document.createElement('div');
-                sourceElement.classList.add('source');
-                sourceElement.textContent = `Fonte: ${game.source}`;
-                gameDetails.appendChild(sourceElement);
+            const gameSize = document.createElement('p');
+            gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
+            gameDetails.appendChild(gameSize);
 
-                const gameTitle = document.createElement('h2');
-                gameTitle.textContent = game.title;
-                gameDetails.appendChild(gameTitle);
+            game.uris.forEach(uri => {
+                const magnetLink = document.createElement('a');
+                magnetLink.href = uri;
+                const hostname = getHostname(uri);
+                magnetLink.textContent = uri.startsWith('magnet:') ? `Download via torrent` : `Download via ${hostname}`;
+                magnetLink.classList.add('magnet-link');
+                magnetLink.target = '_blank';
+                gameDetails.appendChild(magnetLink);
+            });
 
-                const gameDate = document.createElement('p');
-                gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
-                gameDetails.appendChild(gameDate);
+            const shareButton = document.createElement('button');
+            shareButton.textContent = 'Compartilhar';
+            shareButton.onclick = () => {
+                const shareUrl = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(game.title)}&source=${encodeURIComponent(game.source)}`;
+                navigator.share({
+                    title: game.title,
+                    url: shareUrl
+                }).catch(err => console.error('Erro ao compartilhar:', err));
+            };
+            gameElement.appendChild(shareButton);
 
-                const gameSize = document.createElement('p');
-                gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
-                gameDetails.appendChild(gameSize);
-
-                game.uris.forEach(uri => {
-                    const magnetLink = document.createElement('a');
-                    magnetLink.href = uri;
-                    const hostname = getHostname(uri);
-                    if (uri.startsWith('magnet:')) {
-                        magnetLink.textContent = `Download via torrent`;
-                    } else {
-                        magnetLink.textContent = `Download via ${hostname}`;
-                    }
-                    magnetLink.classList.add('magnet-link');
-                    magnetLink.target = '_blank';
-                    gameDetails.appendChild(magnetLink);
-                });
-
-                // Adiciona link de compartilhamento
-                const shareLink = document.createElement('a');
-                const shareUrl = new URL(window.location.href);
-                shareUrl.searchParams.set('title', encodeURIComponent(game.title));
-                shareUrl.searchParams.set('source', encodeURIComponent(game.source));
-                shareLink.href = shareUrl.href;
-                shareLink.classList.add('share-link');
-                shareLink.textContent = 'Compartilhar este jogo';
-                shareLink.target = '_blank';
-                gameDetails.appendChild(shareLink);
-
-                resultsContainer.appendChild(gameElement);
-            }
+            resultsContainer.appendChild(gameElement);
         }
 
-        document.addEventListener('DOMContentLoaded', loadRecentGames);
-
-        // Função para mostrar o jogo com base nos parâmetros da URL
-        function showGameFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const title = urlParams.get('title');
-            const source = urlParams.get('source');
-
+        async function loadGameFromUrl() {
+            const title = getQueryParam('title');
+            const source = getQueryParam('source');
             if (title && source) {
-                const resultsContainer = document.getElementById('results');
-                resultsContainer.innerHTML = '';
+                let allGames = [];
+                for (const [sourceName, sourceUrl] of Object.entries(sources)) {
+                    try {
+                        const response = await fetch(sourceUrl);
+                        const data = await response.json();
+                        const games = data.downloads.map(game => ({
+                            ...game,
+                            source: sourceName
+                        }));
+                        allGames = allGames.concat(games);
+                    } catch (error) {
+                        console.error(`Erro ao buscar jogos da fonte ${sourceName}:`, error);
+                    }
+                }
 
-                const sourceUrl = sources[source];
-                if (sourceUrl) {
-                    fetch(sourceUrl)
-                        .then(response => response.json())
-                        .then(data => {
-                            const game = data.downloads.find(game => normalizeString(game.title) === normalizeString(title));
-                            if (game) {
-                                const gameElement = document.createElement('div');
-                                gameElement.classList.add('game');
-
-                                const gameDetails = document.createElement('div');
-                                gameDetails.classList.add('game-details');
-                                gameElement.appendChild(gameDetails);
-
-                                const sourceElement = document.createElement('div');
-                                sourceElement.classList.add('source');
-                                sourceElement.textContent = `Fonte: ${source}`;
-                                gameDetails.appendChild(sourceElement);
-
-                                const gameTitle = document.createElement('h2');
-                                gameTitle.textContent = game.title;
-                                gameDetails.appendChild(gameTitle);
-
-                                const gameDate = document.createElement('p');
-                                gameDate.textContent = `Data de Upload: ${new Date(game.uploadDate).toLocaleDateString()}`;
-                                gameDetails.appendChild(gameDate);
-
-                                const gameSize = document.createElement('p');
-                                gameSize.textContent = `Tamanho do Arquivo: ${game.fileSize}`;
-                                gameDetails.appendChild(gameSize);
-
-                                game.uris.forEach(uri => {
-                                    const magnetLink = document.createElement('a');
-                                    magnetLink.href = uri;
-                                    const hostname = getHostname(uri);
-                                    if (uri.startsWith('magnet:')) {
-                                        magnetLink.textContent = `Download via torrent`;
-                                    } else {
-                                        magnetLink.textContent = `Download via ${hostname}`;
-                                    }
-                                    magnetLink.classList.add('magnet-link');
-                                    magnetLink.target = '_blank';
-                                    gameDetails.appendChild(magnetLink);
-                                });
-
-                                // Adiciona link de compartilhamento
-                                const shareLink = document.createElement('a');
-                                const shareUrl = new URL(window.location.href);
-                                shareUrl.searchParams.set('title', encodeURIComponent(game.title));
-                                shareUrl.searchParams.set('source', encodeURIComponent(source));
-                                shareLink.href = shareUrl.href;
-                                shareLink.classList.add('share-link');
-                                shareLink.textContent = 'Compartilhar este jogo';
-                                shareLink.target = '_blank';
-                                gameDetails.appendChild(shareLink);
-
-                                resultsContainer.appendChild(gameElement);
-                            } else {
-                                resultsContainer.innerHTML = '<p>Jogo não encontrado.</p>';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao buscar jogo:', error);
-                            resultsContainer.innerHTML = '<p>Erro ao buscar jogo.</p>';
-                        });
+                const game = allGames.find(game => normalizeString(game.title) === normalizeString(title) && game.source === source);
+                if (game) {
+                    displayGame(game);
                 } else {
-                    resultsContainer.innerHTML = '<p>Fonte não encontrada.</p>';
+                    document.getElementById('results').innerHTML = '<p>Jogo não encontrado.</p>';
                 }
             }
         }
 
-        showGameFromUrl();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGameFromUrl();
+        });
     </script>
+
+    <div class="credits">
+        <p>Pc Games Fetch By <a href="https://youtube.com/@hail-games?si=ShSKldSxL5pDIyt-" target="_blank">@HailGames</a></p>
+    </div>
 </body>
 </html>
