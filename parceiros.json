@@ -1,12 +1,12 @@
 [
     {
         "nome": "HailGames",
-        "capa": "http://exemplo",
+        "capa": "https://raw.githubusercontent.com/DEYVIDYT/PcGamesFetch/main/Joel/Round%20Photo_Jul282024_214017.png",
         "link": "http://exemplo"
     },
     {
         "nome": "HailGames2",
-        "capa": "http://exemplo2",
+        "capa": "https://raw.githubusercontent.com/DEYVIDYT/PcGamesFetch/main/Joel/Round%20Photo_Jul282024_214017.png",
         "link": "http://exemplo2"
     }
 ]
