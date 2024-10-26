@@ -1,10 +1,10 @@
 <html><head><base href="https://websim.example.com" /><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>The Piraty Games - Pesquisa de Jogos</title><style>
 :root {
-  --primary-gradient: linear-gradient(135deg, #007aff, #00c6ff);
-  --secondary-gradient: linear-gradient(135deg, #0051a8, #00a8e8);
-  --background-gradient: linear-gradient(135deg, #f0f0f5, #e6e6fa);
-  --card-gradient: linear-gradient(135deg, #ffffff, #f0f0f5);
-  --text-color: #333;
+  --primary-gradient: linear-gradient(135deg, #ff6b6b, #feca57);
+  --secondary-gradient: linear-gradient(135deg, #ff9ff3, #feca57);
+  --background-gradient: linear-gradient(135deg, #f7f1e3, #ffffff);
+  --card-gradient: linear-gradient(135deg, #ffffff, #f7f1e3);
+  --text-color: #2c3e50;
   --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
 }
@@ -22,7 +22,7 @@ body {
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   background: var(--primary-gradient);
   padding: 15px 20px;
@@ -32,6 +32,8 @@ body {
 }
 
 .toolbar .menu-button {
+  position: absolute;
+  left: 20px;
   font-size: 24px;
   color: white;
   cursor: pointer;
@@ -46,6 +48,7 @@ body {
   margin: 0;
   font-size: 24px;
   color: white;
+  text-align: center;
 }
 
 .toolbar h1 a {
@@ -124,27 +127,6 @@ button:hover {
   transform: translateY(-2px);
 }
 
-.loading-container {
-  display: none;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid var(--primary-gradient);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .results-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -181,7 +163,7 @@ button:hover {
 }
 
 .magnet-link {
-  color: var(--primary-gradient);
+  color: #ff6b6b;
   text-decoration: none;
   display: inline-block;
   margin-top: 10px;
@@ -190,7 +172,7 @@ button:hover {
 }
 
 .magnet-link:hover {
-  color: var(--secondary-gradient);
+  color: #feca57;
   text-decoration: underline;
 }
 
@@ -209,15 +191,120 @@ button:hover {
 }
 
 .credits a {
-  color: var(--primary-gradient);
+  color: #ff6b6b;
   text-decoration: none;
   font-weight: 500;
   transition: var(--transition);
 }
 
 .credits a:hover {
-  color: var(--secondary-gradient);
+  color: #feca57;
   text-decoration: underline;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#videoPlayerContainer {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+#videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#modalTitle {
+  margin-bottom: 15px;
+  color: var(--text-color);
+  font-size: 18px;
+  text-align: center;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.partners-container {
+  display: flex;
+  overflow-x: auto;
+  padding: 20px;
+  background: var(--card-gradient);
+  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+.partner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+.partner:hover {
+  transform: scale(1.05);
+}
+
+.partner img {
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.partner span {
+  text-align: center;
+  font-size: 14px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#partnersHeading {
+  text-align: center;
+  color: var(--text-color);
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-size: 24px;
 }
 
 @media (max-width: 768px) {
@@ -237,6 +324,36 @@ button:hover {
   .results-container {
     grid-template-columns: 1fr;
   }
+
+  .modal-content {
+    width: 95%;
+    margin: 10% auto;
+  }
+}
+
+#sourceModal .modal-content {
+  max-width: 400px;
+}
+
+#sourceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+#sourceList label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+#sourceList input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+#sourceModal button {
+  margin-right: 10px;
 }
 </style></head><body>
     <div class="toolbar">
@@ -250,29 +367,37 @@ button:hover {
 
     <div class="search-container">
         <input type="text" id="search-input" placeholder="Digite o nome do jogo">
-        <select id="source-select">
-            <option value="all">Todas as Fontes</option>
-            <option value="Dodi">Dodi</option>
-            <option value="Empress">Empress</option>
-            <option value="Fitgirl">Fitgirl</option>
-            <option value="Free Gog">Free Gog</option>
-            <option value="KaOsKrew">KaOsKrew</option>
-            <option value="OnlineFix">OnlineFix</option>
-            <option value="Tyni Repacks">Tyni Repacks</option>
-            <option value="Xatab">Xatab</option>
-            <option value="Rutracker">Rutracker</option>
-            <option value="gamestorrentsfm">gamestorrentsfm</option>
-            <option value="SteamRip">SteamRip</option>
-        </select>
+        <button onclick="openSourceModal()">Select Sources</button>
         <button onclick="searchGames()">Pesquisar</button>
     </div>
 
-    <div id="loading-container" class="loading-container">
-        <div class="loading-spinner"></div>
-    </div>
+    <h2 id="partnersHeading">Parceiros</h2>
+    <div id="partners" class="partners-container"></div>
 
     <div id="results" class="results-container"></div>
 
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <div id="videoPlayerContainer">
+                <div id="videoPlayer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sourceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSourceModal()">&times;</span>
+            <h2>Select Sources</h2>
+            <div id="sourceList"></div>
+            <button onclick="selectAllSources()">Select All</button>
+            <button onclick="deselectAllSources()">Deselect All</button>
+            <button onclick="applySourceSelection()">Apply</button>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         const sources = {
             "Dodi": "https://hydralinks.cloud/sources/dodi.json",
@@ -288,6 +413,166 @@ button:hover {
             "SteamRip": "https://hydralinks.cloud/sources/steamrip.json"
         };
 
+        const YOUTUBE_API_KEY = 'AIzaSyCv2SnsMgen0ipremmMqSFtGlHA6E3nlk0';
+
+        let selectedSources = Object.keys(sources);
+
+        function openSourceModal() {
+            const sourceList = document.getElementById('sourceList');
+            sourceList.innerHTML = '';
+            
+            Object.keys(sources).forEach(source => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = source;
+                checkbox.checked = selectedSources.includes(source);
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(source));
+                sourceList.appendChild(label);
+            });
+            
+            document.getElementById('sourceModal').style.display = 'block';
+        }
+
+        function closeSourceModal() {
+            document.getElementById('sourceModal').style.display = 'none';
+        }
+
+        function applySourceSelection() {
+            const checkboxes = document.querySelectorAll('#sourceList input[type="checkbox"]');
+            selectedSources = Array.from(checkboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            closeSourceModal();
+        }
+
+        function selectAllSources() {
+            const checkboxes = document.querySelectorAll('#sourceList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        }
+
+        function deselectAllSources() {
+            const checkboxes = document.querySelectorAll('#sourceList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+
+        async function loadPartners() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/DEYVIDYT/The-Piraty-Games/refs/heads/main/Parceiros.json');
+                const data = await response.json();
+                const partnersContainer = document.getElementById('partners');
+                partnersContainer.innerHTML = '';
+
+                data.canais.forEach(partner => {
+                    const partnerElement = document.createElement('a');
+                    partnerElement.href = partner.canal;
+                    partnerElement.target = '_blank';
+                    partnerElement.classList.add('partner');
+
+                    const partnerImage = document.createElement('img');
+                    partnerImage.src = partner.capa;
+                    partnerImage.alt = partner.nome;
+                    partnerImage.width = 80;
+                    partnerImage.height = 80;
+
+                    const partnerName = document.createElement('span');
+                    partnerName.textContent = partner.nome;
+
+                    partnerElement.appendChild(partnerImage);
+                    partnerElement.appendChild(partnerName);
+                    partnersContainer.appendChild(partnerElement);
+                });
+            } catch (error) {
+                console.error('Error fetching partners:', error);
+            }
+        }
+
+        function togglePartnersVisibility(show) {
+            const partnersHeading = document.getElementById('partnersHeading');
+            const partnersContainer = document.getElementById('partners');
+            if (show) {
+                partnersHeading.style.display = 'block';
+                partnersContainer.style.display = 'flex';
+            } else {
+                partnersHeading.style.display = 'none';
+                partnersContainer.style.display = 'none';
+            }
+        }
+
+        function cleanGameTitle(title) {
+            let cleanedTitle = title.replace(/\([^)]*\)|\[[^\]]*\]/g, '');
+            cleanedTitle = cleanedTitle.replace(/v\.\d+(\.\d+)*|\/\d+(\.\d+)*/g, '');
+            return cleanedTitle.trim();
+        }
+
+        async function fetchYouTubeVideo(gameTitle) {
+            const cleanedTitle = cleanGameTitle(gameTitle);
+            const query = `${cleanedTitle} gameplay`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}&type=video&maxResults=5`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                    const bestMatch = data.items.reduce((best, current) => {
+                        const currentTitle = cleanGameTitle(current.snippet.title.toLowerCase());
+                        const currentScore = calculateSimilarity(currentTitle, cleanedTitle.toLowerCase());
+                        return currentScore > best.score ? { video: current, score: currentScore } : best;
+                    }, { video: null, score: 0 });
+
+                    if (bestMatch.video) {
+                        return { videoId: bestMatch.video.id.videoId, title: bestMatch.video.snippet.title };
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching YouTube video:', error);
+            }
+            return null;
+        }
+
+        function calculateSimilarity(str1, str2) {
+            const words1 = str1.split(' ');
+            const words2 = str2.split(' ');
+            const commonWords = words1.filter(word => words2.includes(word));
+            return commonWords.length / Math.max(words1.length, words2.length);
+        }
+
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('videoPlayer', {
+                height: '100%',
+                width: '100%',
+                videoId: '',
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+        }
+
+        function showVideoModal(videoId, videoTitle, gameTitle) {
+            const modal = document.getElementById('videoModal');
+            const modalTitle = document.getElementById('modalTitle');
+            modalTitle.textContent = `${gameTitle} - ${videoTitle}`;
+            modal.style.display = 'block';
+            if (player && player.loadVideoById) {
+                player.loadVideoById(videoId);
+            } else {
+                console.error('YouTube player not initialized');
+            }
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            modal.style.display = 'none';
+            if (player && player.stopVideo) {
+                player.stopVideo();
+            }
+        }
+
         function normalizeString(str) {
             return str.replace(/[^\w]/g, '').toLowerCase();
         }
@@ -298,22 +583,27 @@ button:hover {
             return a.hostname.replace('www.', '');
         }
 
+        function isMagnetLink(uri) {
+            return uri.startsWith('magnet:');
+        }
+
         async function searchGames() {
             const query = normalizeString(document.getElementById('search-input').value);
-            const selectedSource = document.getElementById('source-select').value;
             const resultsContainer = document.getElementById('results');
-            const loadingContainer = document.getElementById('loading-container');
-            
-            resultsContainer.innerHTML = '';
-            loadingContainer.style.display = 'flex';
+
+            if (query.trim() === '') {
+                await loadRecentGames();
+                return;
+            }
+
+            togglePartnersVisibility(false);
+
+            resultsContainer.innerHTML = '<div class="loading">Pesquisando jogos...</div>';
 
             let foundGames = [];
 
-            for (const [sourceName, sourceUrl] of Object.entries(sources)) {
-                if (selectedSource !== 'all' && selectedSource !== sourceName) {
-                    continue;
-                }
-
+            for (const sourceName of selectedSources) {
+                const sourceUrl = sources[sourceName];
                 try {
                     const response = await fetch(sourceUrl);
                     const data = await response.json();
@@ -325,7 +615,7 @@ button:hover {
                 }
             }
 
-            loadingContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
 
             if (foundGames.length > 0) {
                 foundGames.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
@@ -349,6 +639,15 @@ button:hover {
 
             const gameTitle = document.createElement('h2');
             gameTitle.textContent = game.title;
+            gameTitle.style.cursor = 'pointer';
+            gameTitle.onclick = async () => {
+                const videoInfo = await fetchYouTubeVideo(game.title);
+                if (videoInfo) {
+                    showVideoModal(videoInfo.videoId, videoInfo.title, game.title);
+                } else {
+                    alert('Não foi possível encontrar um vídeo de gameplay para este jogo.');
+                }
+            };
             gameElement.appendChild(gameTitle);
 
             const gameDate = document.createElement('p');
@@ -362,8 +661,7 @@ button:hover {
             game.uris.forEach(uri => {
                 const magnetLink = document.createElement('a');
                 magnetLink.href = uri;
-                const hostname = getHostname(uri);
-                magnetLink.textContent = `Download via ${hostname}`;
+                magnetLink.textContent = isMagnetLink(uri) ? 'Download via Torrent' : `Download via ${getHostname(uri)}`;
                 magnetLink.classList.add('magnet-link');
                 magnetLink.target = '_blank';
                 gameElement.appendChild(magnetLink);
@@ -380,6 +678,8 @@ button:hover {
         async function loadRecentGames() {
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = '<div class="loading">Carregando jogos recentes...</div>';
+
+            togglePartnersVisibility(true);
 
             let allGames = [];
 
@@ -408,7 +708,23 @@ button:hover {
             });
         }
 
-        document.addEventListener('DOMContentLoaded', loadRecentGames);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPartners();
+            loadRecentGames();
+
+            const modal = document.getElementById('videoModal');
+            const span = document.getElementsByClassName('close')[0];
+
+            span.onclick = closeVideoModal;
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    closeVideoModal();
+                }
+            }
+
+            togglePartnersVisibility(true);
+        });
     </script>
 
     <div class="credits">
